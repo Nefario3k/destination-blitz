@@ -1,0 +1,199 @@
+@import url("https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Red+Hat+Display:ital,wght@0,300..900;1,300..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Lobster&display=swap");
+html {
+  overflow-y: auto !important;
+  scroll-behavior: smooth;
+  // top: 0 !important;
+}
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  word-break: break-word;
+  word-wrap: break-word;
+  white-space: normal;
+}
+
+*:not(
+    .overlay-bar,
+    .overlay-rap,
+    .generic__mount__domain,
+    .v-overlay-container,
+    .v-overlay-container *,
+    .preventDefaultTransition,
+    .preventDefaultTransition *:not(.preventPreventDefaultTransition, .preventPreventDefaultTransition > *)
+  ) {
+  transition: all 500ms;
+  scroll-behavior: smooth;
+}
+
+:root {
+  --primary_color: #291f57;
+  --primary_color2: #27174e;
+
+  --bg_color: #fff;
+  --bg_color1: #fefefe;
+  --bg_color2: #e2e2e2;
+  --bg_color3: #f7f7f7;
+  --bg_color4: #e1e1e1;
+  --bg_color5: #f8f8f8;
+  --bg_color6: #f9f9f9;
+
+  --border_color: #eeeeee;
+  --border_color2: #281a52;
+
+  --scrim: #000000bf;
+
+  --text_light: #fff;
+  --text_dark: #27164d;
+  --text_dark2: #3b3b3b;
+  --text_dark3: #412480;
+  --text_dark4: #cacaca;
+  --text_dark5: #414040;
+  --text_dark6: #474747;
+  --text_dark7: #3a71b4;
+  --text_dark8: #b1b1b1;
+  --text_dark9: #747474;
+  --text_dark10: #a5a5a5;
+  --text_dark11: #969696;
+
+  --text_xs: 1.2rem;
+  --text_sm: 1.4rem;
+  --text_md: 1.6rem;
+  --text_lg: 1.8rem;
+  --text_xl: 2rem;
+  --text_p: 2.4rem;
+
+  font-size: 62.5%;
+}
+
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+:not(html, body)::-webkit-scrollbar-track {
+  background-color: var(--border_color);
+  box-shadow: none;
+  border-radius: 30px;
+}
+
+:not(html, body)::-webkit-scrollbar-thumb {
+  background-color: var(--primary_color);
+  border-radius: 30px;
+}
+
+.v-tooltip .app__tooltip.v-overlay__content {
+  background: var(--border_color2);
+  font-family: "Red Hat Display", sans-serif !important;
+  font-weight: normal;
+  color: var(--text_light);
+  font-weight: 600;
+  font-size: var(--text_sm);
+  &.action {
+    background-color: var(--success_color);
+    color: var(--text_light);
+    &.danger {
+      background-color: var(--danger_color);
+    }
+  }
+  &.base__tooltip {
+    background-color: var(--text_light);
+    color: #000;
+    border-radius: 5px;
+    border: 1px soild var(--border_color) !important;
+    min-height: 3.4rem;
+    min-width: 6.6rem;
+    font-size: var(--text_md);
+    text-align: center;
+    box-shadow: 0px 4px 4px 0px #00000008;
+    &::before {
+      content: "";
+      position: absolute;
+      background-color: inherit;
+      width: 12px;
+      height: 12px;
+      bottom: -6px;
+      left: 50%;
+      border-bottom-right-radius: 3px;
+      transform: translateX(-50%) rotate(45deg);
+      box-shadow: 0px 4px 4px 0px #00000008;
+    }
+  }
+  // opacity: 0.9;
+}
+
+body,
+html {
+  overscroll-behavior: none;
+  &:has(.hiddenBodyScroll) {
+    &::-webkit-scrollbar {
+      width: 0 !important;
+      height: 0 !important;
+    }
+  }
+}
+
+body,
+.v-application.v-theme--light {
+  font-family: "Red Hat Display", sans-serif;
+  background-color: var(--bg_color);
+  font-size: 1.6rem;
+
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--text_dark3);
+    border-radius: 20px;
+  }
+  &::-webkit-scrollbar-track {
+    background-color: var(--border_color);
+    box-shadow: none;
+  }
+  // forms and inputs
+  .form {
+    // inputs
+    input,
+    select,
+    textarea {
+      border: none;
+      outline: none !important;
+      border-radius: 8px;
+      font-weight: 400 !important;
+      box-shadow: none !important;
+      min-height: 51.13px;
+      width: 100%;
+      transition: all 0.25s ease-in-out;
+      padding-inline: 12px;
+
+      &::placeholder {
+        font-style: normal;
+        font-weight: 500;
+        font-size: 10px;
+      }
+    }
+
+    select {
+      -moz-appearance: none;
+      -webkit-appearance: none;
+      appearance: none;
+      background: rgba(0, 98, 255, 0.06) url(/public/svgs/arrow_down.svg) !important;
+      background-position: bottom 15px right 15px !important;
+      background-repeat: no-repeat !important;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: -0.011em;
+      line-height: 24px;
+      text-align: left;
+    }
+
+    textarea {
+      resize: none;
+      min-height: 67.13px;
+    }
+  }
+}

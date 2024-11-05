@@ -1,0 +1,41 @@
+{
+  "name": "destination-blitz",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "nuxt start",
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@mdi/font": "^7.4.47",
+    "@pinia/nuxt": "^0.5.1",
+    "@sidebase/nuxt-auth": "^0.6.7",
+    "axios": "^1.6.8",
+    "leaflet": "^1.9.4",
+    "lodash": "^4.17.21",
+    "lottie-web": "^5.12.2",
+    "nuxt": "^3.11.2",
+    "nuxt-sanctum-auth": "^0.4.7",
+    "pinia": "^2.1.7",
+    "scriptjs": "^2.5.9",
+    "unctx": "^2.3.1",
+    "vue": "^3.4.21",
+    "vue3-draggable": "^2.0.9"
+  },
+  "devDependencies": {
+    "@nuxtjs/sitemap": "^5.1.1",
+    "@nuxtjs/tailwindcss": "^6.12.0",
+    "@types/jquery": "^3.5.30",
+    "@vueuse/core": "^10.11.0",
+    "@vueuse/nuxt": "^10.10.1",
+    "sass": "^1.76.0",
+    "tailwindcss": "^3.4.3",
+    "vite-plugin-vuetify": "^2.0.3",
+    "vuetify": "^3.6.3"
+  }
+}
