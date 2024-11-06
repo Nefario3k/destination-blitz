@@ -46,7 +46,6 @@ body,
         font-size: var(--text_md);
         font-weight: 400;
         display: block;
-        font-family: Inter, sans-serif;
       }
     }
     &.elip {
@@ -151,7 +150,7 @@ body,
     }
     &:disabled,
     &.v-btn--disabled {
-      background-color: var(--border_color) !important;
+      background: var(--border_color) !important;
       border-color: transparent !important;
       box-shadow: none !important;
       filter: none !important;
@@ -179,7 +178,7 @@ body,
     border: 1px solid var(--border_color);
     border-radius: 5px;
     padding-inline: 12px;
-    height: 3rem;
+    height: 4rem;
     color: var(--text_dark2);
     font-size: var(--text_xs);
     width: 100%;
@@ -203,14 +202,14 @@ body,
   }
 
   select {
-    background: url(/public/svgs/arrow_down.svg) calc(100% - 12px) center
-        no-repeat,
+    background:
+      url(/public/svgs/arrow_down.svg) calc(100% - 12px) center no-repeat,
       var(--bg_color3);
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
   }
-  
+
   textarea {
     resize: none;
     padding-block: 16px;
@@ -246,8 +245,8 @@ body,
         background-color: var(--text_light);
       }
       select {
-        background: url(/public/svgs/arrow_down.svg) calc(100% - 12px) center
-            no-repeat,
+        background:
+          url(/public/svgs/arrow_down.svg) calc(100% - 12px) center no-repeat,
           var(--text_light);
       }
       .v-field__loader {
@@ -280,8 +279,8 @@ body,
     }
 
     select {
-      background: url(/public/svgs/arrow_down.svg) calc(100% - 12px) center
-          no-repeat,
+      background:
+        url(/public/svgs/arrow_down.svg) calc(100% - 12px) center no-repeat,
         transparent;
       appearance: none;
       -webkit-appearance: none;
@@ -340,7 +339,8 @@ body,
       height: 100%;
       max-height: inherit;
       overflow: hidden;
-      box-shadow: 0px 20px 24px -4px rgba(16, 24, 40, 0.08),
+      box-shadow:
+        0px 20px 24px -4px rgba(16, 24, 40, 0.08),
         0px 8px 8px -4px rgba(16, 24, 40, 0.03);
 
       .card__wrapper {
@@ -680,18 +680,8 @@ body,
 
   .linear__background {
     background: linear-gradient(90deg, #402983 0%, #3a71b4 47%, #d97032 100%);
-    background: -webkit-linear-gradient(
-      90deg,
-      #402983 0%,
-      #3a71b4 47%,
-      #d97032 100%
-    );
-    background: -moz-linear-gradient(
-      90deg,
-      #402983 0%,
-      #3a71b4 47%,
-      #d97032 100%
-    );
+    background: -webkit-linear-gradient(90deg, #402983 0%, #3a71b4 47%, #d97032 100%);
+    background: -moz-linear-gradient(90deg, #402983 0%, #3a71b4 47%, #d97032 100%);
     &.Btn {
       background-size: 100%;
       &:hover {
@@ -723,24 +713,9 @@ body,
       opacity: 0;
       z-index: -1;
       border-radius: inherit;
-      background: linear-gradient(
-        90deg,
-        #402983 0%,
-        #3a71b4 47%,
-        #d97032 100%
-      ) !important;
-      background: -webkit-linear-gradient(
-        90deg,
-        #402983 0%,
-        #3a71b4 47%,
-        #d97032 100%
-      ) !important;
-      background: -moz-linear-gradient(
-        90deg,
-        #402983 0%,
-        #3a71b4 47%,
-        #d97032 100%
-      ) !important;
+      background: linear-gradient(90deg, #402983 0%, #3a71b4 47%, #d97032 100%) !important;
+      background: -webkit-linear-gradient(90deg, #402983 0%, #3a71b4 47%, #d97032 100%) !important;
+      background: -moz-linear-gradient(90deg, #402983 0%, #3a71b4 47%, #d97032 100%) !important;
     }
     &:hover {
       & > .Btn {

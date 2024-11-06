@@ -197,6 +197,8 @@ const svgLeftModules = shallowRef(null);
 const svgRightModules = shallowRef(null);
 const getComponent = (string: any) => {
   switch (string.toLowerCase()) {
+    case "xmark":
+      return resolveComponent("SvgXMark");
     default:
       console.log(string.toLowerCase());
       return null;

@@ -1,11 +1,27 @@
-export {};
+export { };
 
 declare global {
+  interface UserLegMetrics {
+    duration: number;
+    distance: number;
+  }
+  interface UserLeg {
+    metrics: Array<UserLegMetrics>;
+    names: Array<string>;
+  }
+  interface RouteLeg {
+    steps: Array<any>;
+    summary: String;
+    weight: number;
+    duration: number;
+    distance: number;
+  }
   interface Locations {
     id: number;
     search: string;
     coordinates: any;
     searchResults: Array<SearchResult>;
+    selectedRoute: SearchResult;
     isSearching: boolean;
     menu?: boolean;
     error: any;
