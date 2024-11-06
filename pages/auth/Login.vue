@@ -1,6 +1,9 @@
 <template>
   <section class="noTransition page_main_section">
-    <section style="grid-gap: 0" class="auth__section align_auto min-h-screen relative">
+    <section
+      style="grid-gap: 0"
+      class="auth__section align_auto min-h-screen relative overflow-hidden"
+    >
       <div
         class="overlflow-hidden h-screen imageWrapper sticky top-0 bottom-0 max-w-[35%] preventDefaultTransition flex justify-center hidden_md"
       >
@@ -28,7 +31,7 @@
         class="transrightBasic justify_auto min-h-[inherit]"
       >
         <section class="auth__body px-[16px] max-w-[50.1rem] mx-auto flex_center w-full">
-          <form autocomplete="new-password" class="py-[24px]">
+          <form autocomplete="new-password" class="py-[24px]" @submit.prevent="login">
             <VRow>
               <VCol :cols="12" class="mb-[12px]">
                 <div class="w-full">
@@ -56,6 +59,8 @@
                   id="log-email-address"
                   type="email"
                   placeholder=""
+                  required
+                  v-model="formData.email"
                 />
               </VCol>
               <!-- log-password -->
@@ -73,6 +78,8 @@
                     id="log-password"
                     :type="!togglePassword ? 'password' : 'text'"
                     placeholder=""
+                    required
+                    v-model="formData.password"
                   />
                   <label
                     @click="togglePassword = !togglePassword"
@@ -86,6 +93,9 @@
               <!-- btn -->
               <VCol :cols="12" class="">
                 <BaseButton
+                  :disabled="disabledBtn"
+                  :loading="isLoading"
+                  type="submit"
                   :elevation="1"
                   class="linear__background"
                   height="4.5rem"
@@ -95,22 +105,7 @@
                   :text-style="{
                     fontSize: 'var(--text_sm)',
                   }"
-                  to="/"
-                  @click="
-                    $globalEmit('success', {
-                      prop: 'Logged in successfully!',
-                      header: 'Access granted',
-                    })
-                  "
                 />
-              </VCol>
-              <!-- or -->
-              <VCol :cols="12" class="">
-                <div class="or w-full max-w-[20rem] flex items-center mx-auto gap-[18px]">
-                  <div class="h-[1px] bg-main-2 flex-auto"></div>
-                  <span class="text-md text-black flex-none">Or</span>
-                  <div class="h-[1px] bg-main-2 flex-auto"></div>
-                </div>
               </VCol>
               <!-- reg -->
               <VCol :cols="12" class="mt-[12px]">
@@ -130,12 +125,66 @@
 <script lang="ts" setup>
 definePageMeta({
   layout: "auth",
-  // auth: {
-  //   unauthenticatedOnly: true,
-  //   navigateAuthenticatedTo: "/",
-  // },
 });
+const { $globalEmit, $commitToLocalStorage } = useNuxtApp();
 const togglePassword = ref(false);
+const isLoading = ref(false);
+const formData = ref({
+  email: "",
+  password: "",
+});
+const disabledBtn = computed(() => {
+  let val = false;
+
+  Object.entries(formData.value).forEach(([key, value]) => {
+    if (!value) val = true;
+  });
+  if (isLoading.value) val = true;
+  return val;
+});
+const login = () => {
+  try {
+    if (disabledBtn.value)
+      return $globalEmit("info", {
+        prop: "Please fill out the form",
+      });
+    let allUsersArray = [];
+    const allUsers = localStorage.getItem("allUsersArray");
+    if (allUsers) {
+      allUsersArray = JSON.parse(allUsers);
+      const dd = allUsersArray.filter((element: any) => {
+        return element.email === formData.value.email;
+      });
+      if (!dd.length)
+        return $globalEmit("error", {
+          prop: "Account not found! Please check the details and try again",
+          header: "Account Login",
+        });
+      else if (dd.length && dd[0].password !== formData.value.password)
+        return $globalEmit("error", {
+          prop: "Invalid account login details! Please check the details and try again",
+          header: "Account Login",
+        });
+      $commitToLocalStorage("user", JSON.stringify(dd[0]));
+
+      isLoading.value = true;
+      setTimeout(() => {
+        isLoading.value = false;
+        $globalEmit("success", {
+          prop: "Logged in successfully!",
+          header: "Access granted",
+        });
+        navigateTo("/");
+      }, 5000);
+    } else
+      $globalEmit("error", {
+        prop: "Account not found! Please check the details and try again",
+        header: "Account Login",
+      });
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 useSeoMeta({
   title: "Login - Destination Blitz",

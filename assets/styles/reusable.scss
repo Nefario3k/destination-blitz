@@ -362,6 +362,10 @@ body,
       }
     }
   }
+
+  .v-overlay__content:has(> .v-list) {
+    z-index: 99999999;
+  }
   // .expansion
   .generic__domain__expansion {
     .malevolent__kitchen {

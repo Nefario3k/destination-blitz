@@ -6,8 +6,11 @@
   </div>
 </template>
 
-<script>
-export default {};
+<script lang="ts" setup>
+const { $getUser } = useNuxtApp();
+onMounted(() => {
+  if ($getUser()?.full_name) return navigateTo("/auth/login");
+});
 </script>
 
 <style lang="scss" scoped></style>

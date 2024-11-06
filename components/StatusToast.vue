@@ -24,7 +24,7 @@
           <!-- icon  -->
           <div class="iconCenter" v-if="item.svg">
             <template v-if="item.svgType == 'danger'">
-              <!-- <lord-icon
+              <lord-icon
                 src="https://cdn.lordicon.com/wtnrotmp.json"
                 trigger="loop"
                 delay="500"
@@ -33,7 +33,7 @@
                 colors="primary:#fff,secondary:#fff"
                 style="width: 100%; height: 100%"
               >
-              </lord-icon> -->
+              </lord-icon>
               <!-- <svg
                 width="24"
                 height="24"

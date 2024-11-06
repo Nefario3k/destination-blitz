@@ -40,6 +40,18 @@
     .visible_sm {
       display: block !important;
     }
+
+    .responsiveControl {
+      isolation: isolate;
+      position: fixed;
+      z-index: 1001;
+      background-color: var(--text_light);
+      max-width: 100%;
+      top: 0;
+      left: 0;
+      order: 2;
+      // visibility: hidden;
+    }
   }
 }
 @media screen and (max-width: 600px) {

@@ -17,6 +17,7 @@
     "@sidebase/nuxt-auth": "^0.6.7",
     "axios": "^1.6.8",
     "leaflet": "^1.9.4",
+    "leaflet-routing-machine": "^3.2.12",
     "lodash": "^4.17.21",
     "lottie-web": "^5.12.2",
     "nuxt": "^3.11.2",
@@ -25,6 +26,7 @@
     "scriptjs": "^2.5.9",
     "unctx": "^2.3.1",
     "vue": "^3.4.21",
+    "vue-currency-input": "^3.1.0",
     "vue3-draggable": "^2.0.9"
   },
   "devDependencies": {

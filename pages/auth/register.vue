@@ -1,6 +1,9 @@
 <template>
   <section class="noTransition page_main_section">
-    <section style="grid-gap: 0" class="auth__section align_auto min-h-screen relative">
+    <section
+      style="grid-gap: 0"
+      class="auth__section align_auto min-h-screen relative overflow-hidden"
+    >
       <div
         class="overlflow-hidden h-screen imageWrapper sticky top-0 bottom-0 max-w-[35%] flex justify-center preventDefaultTransition hidden_md"
       >
@@ -28,7 +31,7 @@
         class="transrightBasic justify_auto min-h-[inherit]"
       >
         <section class="auth__body px-[16px] max-w-[50.1rem] mx-auto flex_center w-full">
-          <form autocomplete="new-password" class="py-[24px]">
+          <form autocomplete="new-password" class="py-[24px]" @submit.prevent="register">
             <VRow>
               <VCol :cols="12" class="mb-p-[12px]">
                 <div class="w-full">
@@ -57,6 +60,8 @@
                   id="reg-full-name"
                   type="text"
                   placeholder=""
+                  required
+                  v-model="formData.full_name"
                 />
               </VCol>
               <!-- reg-work-email-address -->
@@ -74,6 +79,8 @@
                   id="reg-work-email-address"
                   type="email"
                   placeholder=""
+                  required
+                  v-model="formData.email"
                 />
               </VCol>
               <!-- reg-password -->
@@ -91,6 +98,8 @@
                     id="reg-password"
                     :type="!togglePassword ? 'password' : 'text'"
                     placeholder=""
+                    required
+                    v-model="formData.password"
                   />
                   <label
                     @click="togglePassword = !togglePassword"
@@ -104,6 +113,9 @@
               <!-- btn -->
               <VCol :cols="12" class="">
                 <BaseButton
+                  :disabled="disabledBtn"
+                  :loading="isLoading"
+                  type="submit"
                   :elevation="1"
                   class="linear__background"
                   height="4.5rem"
@@ -115,14 +127,6 @@
                   }"
                   @click="startInterval()"
                 />
-              </VCol>
-              <!-- or -->
-              <VCol :cols="12" class="">
-                <div class="or w-full max-w-[20rem] flex items-center mx-auto gap-[18px]">
-                  <div class="h-[1px] bg-main-2 flex-auto"></div>
-                  <span class="text-md text-black flex-none">Or</span>
-                  <div class="h-[1px] bg-main-2 flex-auto"></div>
-                </div>
               </VCol>
               <!-- reg -->
               <VCol :cols="12" class="mt-[12px]">
@@ -147,13 +151,55 @@ definePageMeta({
   //   navigateAuthenticatedTo: "/",
   // },
 });
-const { $globalEmit } = useNuxtApp();
+const { $globalEmit, $commitToLocalStorage } = useNuxtApp();
 const togglePassword = ref(false);
-const isLoading = ref(true);
+const formData = ref({
+  full_name: "",
+  email: "",
+  password: "",
+});
+const disabledBtn = computed(() => {
+  let val = false;
+
+  Object.entries(formData.value).forEach(([key, value]) => {
+    if (!value) val = true;
+  });
+  if (isLoading.value) val = true;
+  return val;
+});
+const isLoading = ref(false);
 const loading = ref(0);
 const maxTimer = ref(25);
 const interval = ref(null);
-const startInterval = () => {};
+const register = () => {
+  if (disabledBtn.value)
+    return $globalEmit("info", {
+      prop: "Please fill out the form",
+    });
+  let allUsersArray = [];
+  const allUsers = localStorage.getItem("allUsersArray");
+  if (allUsers) {
+    allUsersArray = JSON.parse(allUsers);
+    const dd = allUsersArray.filter((element: any) => {
+      return element.email === formData.value.email;
+    });
+    if (dd.length)
+      return $globalEmit("error", {
+        prop: "Email already in use!",
+        header: "Account registration",
+      });
+  }
+  allUsersArray.push(formData.value);
+  $commitToLocalStorage("allUsersArray", JSON.stringify(allUsersArray));
+  $commitToLocalStorage("user", JSON.stringify(formData.value));
+
+  isLoading.value = true;
+  setTimeout(() => {
+    isLoading.value = false;
+    $globalEmit("success", { prop: "Account created successfully!", header: "New user" });
+    navigateTo("/");
+  }, 5000);
+};
 useSeoMeta({
   title: "Register - Destination Blitz",
   ogTitle: "Register - Destination Blitz",

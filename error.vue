@@ -176,7 +176,6 @@
               >
               <div class="flex_center my-[36px] flex-wrap gap-[16px]">
                 <VMenu
-                  :open-on-hover="$getAppResource('viewportWidth') <= 958 ? false : true"
                   v-model="searchInputMenu"
                   location="bottom center"
                   :offset="5"
