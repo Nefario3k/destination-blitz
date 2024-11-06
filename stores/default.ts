@@ -8,6 +8,7 @@ interface AppResourceState {
   map: any | null;
   locations: Array<Locations>;
   routeLegs: UserLeg;
+  zIndex: number;
   apiBase: string;
 }
 
@@ -35,6 +36,7 @@ const getAppResourceState = (): AppResourceState => ({
     metrics: [],
     names: [],
   },
+  zIndex: 1,
   apiBase: useRuntimeConfig().public.apiBase,
 });
 

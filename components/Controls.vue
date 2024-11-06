@@ -1,7 +1,24 @@
 <template>
   <div>
     <div class="space-y-4 py-5 w-full px-[16px]">
-      <h2 class="text-xl font-bold mb-4">Road Trip Planner</h2>
+      <div class="mb-4 flex_between">
+        <h2 class="text-xl font-bold text-dark-2">Road Trip Planner</h2>
+        <div class="visible_sm">
+          <BaseButton
+            :svg="true"
+            style="padding: 0 !important"
+            svgLeft="XMark"
+            max-width="max-content"
+            width="3rem"
+            min-width="3rem"
+            height="3rem"
+            min-height="3rem"
+            svg-class="w-[10px] h-[10px]"
+            svg-stroke="#f00"
+            @click="appResourceStore.zIndex = 0"
+          />
+        </div>
+      </div>
 
       <!-- Travel Mode Selection -->
       <div class="space-y-2">
@@ -329,7 +346,7 @@ const maxDestination = ref<number>(4);
 const fuelPrice = ref<number>(1300);
 
 // main destinations array
-const locations = computed(() => appResourceStore.locations);
+const locations = ref<Array<Locations>>([...$deepClone(appResourceStore.locations)]);
 
 // leg work ?? no! captures the users path and individual data
 const routeLegs = computed(() => appResourceStore.routeLegs);
@@ -396,7 +413,7 @@ onMounted(() => {
     }
   `;
   document.head.appendChild(style);
-  map.value.on("zoom", () => {
+  appResourceStore.map.on("zoom", () => {
     calculateNewMarkerLayer();
   });
 
@@ -406,7 +423,7 @@ onMounted(() => {
   const LCrouteInfos = localStorage.getItem("routeInfo");
   const LCfuelPrice = localStorage.getItem("fuelPrice");
   const LCtravelMode = localStorage.getItem("travelMode");
-  if (LClocations) appResourceStore.locations = JSON.parse(LClocations);
+  if (LClocations) locations.value = JSON.parse(LClocations);
   if (LCrouteLegs) appResourceStore.routeLegs = JSON.parse(LCrouteLegs);
   if (LCrouteInfos) routeInfo.value = JSON.parse(LCrouteInfos);
   if (LCfuelPrice) fuelPrice.value = Number(LCfuelPrice);
@@ -495,11 +512,11 @@ const updateMarkers = () => {
   // Clear existing markers
   calculateNewMarkerLayer();
   if (routeLayer.value) {
-    map.value.removeLayer(routeLayer.value);
+    appResourceStore.map.removeLayer(routeLayer.value);
   }
   // Fit bounds if we have multiple markers
   if (markers.value.length) {
-    map.value.setView(locations.value[0].coordinates, 13);
+    appResourceStore.map.setView(locations.value[0].coordinates, 13);
     routeInfo.value = null;
   }
 };
@@ -577,16 +594,14 @@ const calculateNewMarkerLayer = () => {
 };
 
 const calculatePointOfInterestsMarkerLayer = () => {
-  poiMarkers.value.forEach((marker) => map.value.removeLayer(marker));
+  poiMarkers.value.forEach((marker) => appResourceStore.map.removeLayer(marker));
   poiMarkers.value = [];
   pois.value = [];
 };
 // just adds a new locations object
 const addLocation = () => {
   updateLocations.value = false;
-  appResourceStore.locations.push(
-    $deepClone({ id: Math.random(), ...defaultVals.defaultLocation })
-  );
+  locations.value.push($deepClone({ id: Math.random(), ...defaultVals.defaultLocation }));
   setTimeout(() => {
     updateLocations.value = true;
   }, 0);
@@ -598,8 +613,6 @@ const removeLocation = (index: number) => {
     locations.value.splice(index, 1);
     setTimeout(() => {
       updateLocations.value = true;
-      updateMarkers();
-      setTimeout(() => {}, 200);
     }, 0);
   }
 };
@@ -700,9 +713,10 @@ const decodePolyline = (str: string, precision: number = 5) => {
 // updates the map with the new poly line
 const updateRoutePoly = async () => {
   appResourceStore.isMapLoading = true;
+  appResourceStore.zIndex = 0;
   try {
     if (routeLayer.value) {
-      map.value.removeLayer(routeLayer.value);
+      appResourceStore.map.removeLayer(routeLayer.value);
       routeLayer.value = null;
     }
     // Get the route from OSRM
@@ -722,7 +736,7 @@ const updateRoutePoly = async () => {
     }).addTo(map.value);
 
     // Fit bounds to show the entire route
-    map.value.fitBounds(routeLayer.value.getBounds(), {
+    appResourceStore.map.fitBounds(routeLayer.value.getBounds(), {
       padding: [50, 50],
     });
     // emit success cause i like this my popup too much, please rate it too!

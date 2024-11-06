@@ -9,7 +9,7 @@
 <script lang="ts" setup>
 const { $getUser } = useNuxtApp();
 onMounted(() => {
-  if ($getUser()?.full_name) return navigateTo("/auth/login");
+  if (!$getUser()?.full_name) return navigateTo("/auth/login");
 });
 </script>
 

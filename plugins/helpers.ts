@@ -141,7 +141,11 @@ export default defineNuxtPlugin((nuxtApp) => {
         // if (data.value?.data) {
         //   return { ...data.value?.data };
         // }
-        return defaultVals.user;
+        if (process.client) {
+          const user = localStorage.getItem('user')
+          if (user) return JSON.parse(user);
+        }
+        return {};
       },
       logOutUser: async () => {
         return;

@@ -3,6 +3,7 @@
     <section style="grid-gap: 0" class="align_auto min-h-screen">
       <!-- Locations Control -->
       <Controls
+        :style="{ zIndex }"
         class="overlflow-hidden h-screen max-w-[350px] overflow-auto responsiveControl"
       />
       <BaseButton
@@ -12,7 +13,9 @@
         min-width="5rem"
         height="5rem"
         min-height="5rem"
-        ><svg
+        @click="appResourceStore.zIndex = 1001"
+      >
+        <svg
           width="30"
           hight="30"
           viewBox="0 0 24 24"
@@ -39,15 +42,19 @@
               stroke-linecap="round"
               stroke-linejoin="round"
             ></path>
-          </g></svg
-      ></BaseButton>
+          </g>
+        </svg>
+      </BaseButton>
       <!-- Map Container -->
       <Map />
     </section>
   </section>
 </template>
-<script>
-export default {};
+<script setup lang="ts">
+import { computed } from "vue";
+// state management
+const appResourceStore = useAppResourceStore();
+const zIndex = computed(() => appResourceStore.zIndex);
 </script>
 
 <style lang="scss" scoped></style>
