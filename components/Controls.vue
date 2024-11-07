@@ -136,7 +136,6 @@
                         placeholder="Search location..."
                         class="w-full"
                         style="padding-right: 40px"
-                        :class="{ 'border-red-500': location.error }"
                       />
                       <div class="absolute max-w-max right-[12px] w-full">
                         <svg
@@ -226,9 +225,6 @@
             </div>
 
             <!-- Location Error Message -->
-            <div v-if="location.error" class="text-red-500 text-sm">
-              {{ location.error }}
-            </div>
           </div>
         </template>
       </Draggable>
@@ -703,7 +699,7 @@ watch(
 // Methods
 // just moves the map
 const moveMap = (coordinates: Array<number>) => {
-  appResourceStore.map.setView(coordinates, 12); // cordinates and zoom level
+  appResourceStore.map.setView(coordinates, 18); // cordinates and zoom level
 };
 // sets the active interests
 const setActiveInterest = (item: any) => {
@@ -715,6 +711,8 @@ const setActiveInterest = (item: any) => {
     // twice because of lag
     poiMarkers.value[dataIndex].remove();
     poiMarkers.value[dataIndex].remove();
+    poiMarkers.value[dataIndex].closePopup();
+    poiMarkers.value[dataIndex].closePopup();
     const icon = item.type !== "way" ? goldIcon : blackIcon;
     const marker = L.marker([item.coordinates.lat, item.coordinates.lng], { icon })
       .addTo(map.value)
@@ -846,13 +844,15 @@ const updateRoute = async () => {
   } finally {
   }
 };
+const removeMarkers = async (type: string = "markers") => {
+  const mapMarks = type === "markers" ? markers.value : poiMarkers.value;
+  await mapMarks.forEach((marker: any) => marker.closePopup());
+  await mapMarks.forEach((marker: any) => marker.remove());
+};
 // clear and calculate new markers
-const calculateNewMarkerLayer = () => {
+const calculateNewMarkerLayer = async () => {
   // did this twice because noticed a bit of a lag
-  markers.value.forEach((marker: any) => marker.remove());
-  markers.value.forEach((marker: any) => marker.remove());
-  markers.value.forEach((marker: any) => marker.closePopup());
-  markers.value.forEach((marker: any) => marker.closePopup());
+  await removeMarkers();
   markers.value = [];
   //  Add new markers
   locations.value.forEach((location, index) => {
@@ -873,13 +873,10 @@ const calculateNewMarkerLayer = () => {
   });
 };
 // clear and calculate new poi markers
-const calculatePointOfInterestsMarkerLayer = () => {
+const calculatePointOfInterestsMarkerLayer = async () => {
   poisLoader.value = true;
   // did this twice because noticed a bit of a lag
-  poiMarkers.value.forEach((marker) => marker.remove());
-  poiMarkers.value.forEach((marker) => marker.remove());
-  poiMarkers.value.forEach((marker) => marker.closePopup());
-  poiMarkers.value.forEach((marker) => marker.closePopup());
+  await removeMarkers("poiMarkers");
   poiMarkers.value = [];
   if (!pois.value || !selectedPoiTypes.value?.length) return;
   pois.value.forEach((poi: any) => {
@@ -894,6 +891,8 @@ const calculatePointOfInterestsMarkerLayer = () => {
 const getPOIs = async () => {
   if (!selectedPoiTypes.value?.length) return calculatePointOfInterestsMarkerLayer();
 
+  pois.value = [];
+  activeInterest.value = {};
   // Calculate bounding box based on route
   const lats = locations.value.map((d) => d.coordinates[0]);
   const lngs = locations.value.map((d) => d.coordinates[1]);
@@ -940,8 +939,6 @@ const getPOIs = async () => {
       }
     });
 
-    pois.value = [];
-    activeInterest.value = {};
     pois.value = data.elements
       .map((element: any) => processOsmElement(element, nodeMap))
       .filter((poi: any) => poi && poi?.name !== "Unnamed Location");

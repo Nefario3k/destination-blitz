@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="$getUser()?.full_name">
     <ClientOnly>
       <Planner />
     </ClientOnly>

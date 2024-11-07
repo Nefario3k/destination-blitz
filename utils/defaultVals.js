@@ -101,7 +101,7 @@ export default {
   ],
   mapStyle: {
     driving: {
-      color: "#3B82F6",
+      color: "blue",
       weight: 4,
       opacity: 0.7,
     },
