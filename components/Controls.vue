@@ -26,7 +26,7 @@
         <select
           :disabled="isMapLoading"
           v-model="travelMode"
-          class="w-full p-2 border rounded"
+          class="w-full p-2"
           @change="updateMapOnCondition()"
         >
           <option value="walking">Walking</option>
@@ -60,6 +60,39 @@
           class="form-control input_field"
           @update:modelValue="fuelPrice = $event"
         />
+      </div>
+      <div class="space-y-2">
+        <label class="block text-sm font-medium max-w-max">Points of interest</label>
+        <FormCombobox
+          :disabled="isMapLoading"
+          :content="poiTypes"
+          :selected-content="selectedPoiTypes"
+          combo-type="filter"
+          @update="selectedPoiTypes = $event"
+        />
+        <Transition name="slide-fade">
+          <div
+            v-if="
+              canSearch && !$compareArrayStrings(selectedPoiTypes, backUpSelectedPoiTypes)
+            "
+            class="flex justify-end mt-3"
+          >
+            <BaseButton
+              :disabled="isMapLoading"
+              :elevation="1"
+              class="linear__background"
+              height="3rem"
+              width="100%"
+              max-width="max-content"
+              color="var(--bg_color6)"
+              text="Update Map"
+              :text-style="{
+                fontSize: 'var(--text_xs)',
+              }"
+              @click="updateMapOnCondition"
+            />
+          </div>
+        </Transition>
       </div>
       <Draggable v-if="updateLocations" v-model="locations" class="space-y-4">
         <template #item="{ item: location }">
@@ -181,7 +214,7 @@
                     v-else-if="!location.searchResults.length && !location.isSearching"
                     class="w-full text-center transInBasic"
                   >
-                    <span>No Values</span>
+                    <span class="text-sm text-dark-3">Nothing matchesyour earch</span>
                   </div>
                   <VListItem v-else class="">
                     <div class="w-full flex_center">
@@ -311,6 +344,154 @@
             </div>
           </template>
         </div>
+
+        <div
+          v-if="pois.length && !poisLoader"
+          class="relative space-y-2 pt-5 transInBasic"
+        >
+          <label class="block text-sm font-medium max-w-max"
+            >Suggested places of interest ({{ pois.length }})
+          </label>
+
+          <VMenu
+            location="bottom center"
+            :offset="5"
+            transition="slide-y-transition"
+            max-width="318"
+            v-model="poisMenu"
+          >
+            <template v-slot:activator="{ props }">
+              <div
+                v-bind="props"
+                class="px-[12px] border-[1px] border-bc rounded-[8px] flex_between gap-[10px] h-[4rem] cursor-pointer relative overflow-hidden"
+              >
+                <p
+                  :class="{
+                    'linear__background clip__background text-sm elipsis':
+                      activeInterest?.name,
+                    'text-xs text-dark-4': !activeInterest?.name,
+                  }"
+                >
+                  <span>{{
+                    !activeInterest?.name ? "Search interests" : activeInterest.name
+                  }}</span>
+                  <span v-if="activeInterest?.amenity">
+                    ({{ activeInterest.amenity }})</span
+                  >
+                </p>
+                <div
+                  :style="{ opacity: poisMenu ? 1 : 0 }"
+                  @click.stop="poisMenu = true"
+                  class="absolute top-0 left-0 w-full h-full"
+                >
+                  <input
+                    style="
+                      width: 100%;
+                      height: 100%;
+                      min-height: auto !important;
+                      border: none;
+                      box-shadow: none !important;
+                      background: var(--text_light) !important;
+                      border-radius: 0 !important;
+                      padding-right: 40px;
+                    "
+                    ref="poisInput"
+                    type="text"
+                    placeholder="Search interests"
+                    v-model="poisFilterInput"
+                  />
+                </div>
+                <!-- icon -->
+                <div class="flex_center min-w-max max-w-max relative z-10">
+                  <SvgAngleDown />
+                </div>
+              </div>
+            </template>
+            <!-- pois -->
+            <VList
+              class="dropDownList dropList justify_auto gap-[15px!important]"
+              min-width="221"
+              max-height="280"
+            >
+              <template v-if="filteredPois.length">
+                <VListItem
+                  v-for="(result, index) in filteredPois"
+                  :key="result.id + index + result.name"
+                  :ripple="true"
+                  class=""
+                  style="
+                    min-height: max-content !important;
+                    height: max-content !important;
+                  "
+                  @click="setActiveInterest(result)"
+                >
+                  <div class="">
+                    <div class="font-medium text-dark-7">{{ result.name }}</div>
+                    <div
+                      v-if="result.amenity"
+                      class="font-medium text-xs elipsis-2 capital"
+                    >
+                      {{ result.amenity }}
+                    </div>
+                    <div
+                      v-if="result.address"
+                      class="text-[10px] capital text-dark-11 font-medium"
+                    >
+                      {{ result.address }}
+                    </div>
+                    <div
+                      v-if="result.phone || result.email"
+                      class="text-[10px] capital text-dark-11 font-medium flex flex-col gap-2"
+                    >
+                      <a
+                        v-if="result.phone"
+                        class="text-dark-7 underline font-bold"
+                        :href="`tel:${result.phone}`"
+                        >📞 {{ result.phone }}</a
+                      >
+                      <a
+                        v-if="result.email"
+                        class="text-dark-7 underline font-bold"
+                        :href="`mailto:${result.email}`"
+                        >📧 {{ result.email }}</a
+                      >
+                    </div>
+                    <div
+                      v-if="result.cuisineTypes"
+                      class="text-[10px] capital text-dark-11 font-medium"
+                    >
+                      <strong>Cuisine:</strong> {{ result.cuisineTypes }}
+                    </div>
+                    <div
+                      v-if="result.dietaryOptions?.length > 0"
+                      class="text-[10px] capital text-dark-11 font-medium"
+                    >
+                      <strong>Dietary Options:</strong>
+                      {{ result.dietaryOptions.join(", ") }}
+                    </div>
+                    <div
+                      v-if="result.openingHours"
+                      class="text-[10px] capital text-dark-11 font-medium"
+                    >
+                      <strong>Opening Hours:</strong>
+                      <div v-html="result.openingHours"></div>
+                    </div>
+                    <div
+                      v-if="result.features?.length > 0"
+                      class="text-[10px] capital text-dark-11 font-medium"
+                    >
+                      <strong>Features:</strong> {{ result.features.join(" • ") }}
+                    </div>
+                  </div>
+                </VListItem>
+              </template>
+              <div v-else class="w-full text-center transInBasic">
+                <span class="text-sm text-dark-3">Nothing matchesyour earch</span>
+              </div>
+            </VList>
+          </VMenu>
+          <p class="text-[10px] text-right text-dark-2">Max: 174</p>
+        </div>
       </div>
     </div>
   </div>
@@ -325,32 +506,84 @@ import debounce from "lodash/debounce";
 import { useCustomFetch } from "~/composables/useCustomFetch";
 
 // helpers functions, most are reusable from my reusable repo
-const { $removeKebabCase, $globalEmit, $deepClone, $commitToLocalStorage } = useNuxtApp();
+const {
+  $removeKebabCase,
+  $globalEmit,
+  $deepClone,
+  $commitToLocalStorage,
+  $getType,
+} = useNuxtApp();
 
 // state management
 const appResourceStore = useAppResourceStore();
 
 // State
-const routeLayer = ref<any>(null);
+
+// map markers
 const markers = ref<Array<any>>([]);
-const pois = ref<Array<any>>([]);
 const poiMarkers = ref<Array<any>>([]);
+
+// marker popup structure styles
+const popupConfig = ref<any>({
+  maxWidth: 400,
+  minWidth: 300,
+  className: "custom-popup",
+  autoPanPadding: [50, 50],
+});
+
+const routeLayer = ref<any>(null);
 const routeLine = ref<any>(null);
-const isMapLoading = computed(() => appResourceStore.isMapLoading);
-const map = computed(() => appResourceStore.map);
 const travelMode = ref<string>("driving");
 const routeInfo = ref<any>(null);
 const updateLocations = ref<boolean>(false); // to counteract dom update
-const loading = ref<boolean>(false);
 const maxDestination = ref<number>(4);
 const fuelPrice = ref<number>(1300);
 
+// points of interest
+const pois = ref<Array<any>>([]);
+const poiTypes = defaultVals.poiTypes;
+const poisFilterInput = ref<string>("");
+const poisMenu = ref<boolean>(false);
+const poisLoader = ref<boolean>(false);
+const activeInterest = ref<any>({});
+const selectedPoiTypes = ref<Array<string>>(["restaurant", "hotel", "spa"]);
+const backUpSelectedPoiTypes = ref<Array<string>>(["restaurant", "hotel", "spa"]);
+const filteredPois = computed(() => {
+  let conData = $deepClone(pois.value);
+  //  filter only string values tho
+  if (poisFilterInput.value) {
+    conData = conData.filter((el: any) => {
+      return (
+        (el.name &&
+          el.name
+            .toLocaleLowerCase()
+            .includes(poisFilterInput.value.toLocaleLowerCase())) ||
+        (el.amenity &&
+          el.amenity
+            .toLocaleLowerCase()
+            .includes(poisFilterInput.value.toLocaleLowerCase())) ||
+        (el.address &&
+          el.address
+            .toLocaleLowerCase()
+            .includes(poisFilterInput.value.toLocaleLowerCase())) ||
+        (el.cuisineTypes &&
+          el.cuisineTypes
+            .toLocaleLowerCase()
+            .includes(poisFilterInput.value.toLocaleLowerCase()))
+      );
+    });
+  }
+  return conData;
+});
 // main destinations array
 const locations = ref<Array<Locations>>([...$deepClone(appResourceStore.locations)]);
 
 // leg work ?? no! captures the users path and individual data
 const routeLegs = computed(() => appResourceStore.routeLegs);
-
+// map loader
+const isMapLoading = computed(() => appResourceStore.isMapLoading);
+// loaded map
+const map = computed(() => appResourceStore.map);
 // formats the route for distance calculation on OSRM
 const formattedCoordinates = computed(() => {
   if (locations.value.length <= 1) return "";
@@ -361,7 +594,7 @@ const formattedCoordinates = computed(() => {
       .join(";");
 });
 
-// just checks if there is need for distance and path calulation
+// just checks if there is need for distance and path calculation
 const canSearch = computed(() => {
   return formattedCoordinates.value && locations.value.every((loc) => loc.coordinates);
 });
@@ -373,14 +606,17 @@ const mapStyle: any = defaultVals.mapStyle;
 const blueIcon = new L.Icon(defaultVals.defaultIcons[0]);
 const redIcon = new L.Icon(defaultVals.defaultIcons[1]);
 const greenIcon = new L.Icon(defaultVals.defaultIcons[2]);
+const goldIcon = new L.Icon(defaultVals.defaultIcons[3]);
+const blackIcon = new L.Icon(defaultVals.defaultIcons[4]);
 
 // Initialize map on client only loaded to avoid windows error and document not found error
 onMounted(() => {
   // sets default map view to be on abuja
   const zoomLevel = 12;
-  const abujaCoordinates = [9.0765, 7.3986];
+  const abujaCoordinates: Array<number> = [9.0765, 7.3986];
   if (!map.value) {
-    appResourceStore.map = L.map("map").setView(abujaCoordinates, zoomLevel);
+    appResourceStore.map = L.map("map");
+    moveMap(abujaCoordinates);
   }
 
   // Add custom styled tile layer
@@ -393,14 +629,14 @@ onMounted(() => {
   // adds abuja marker
   let abj = L.marker(abujaCoordinates)
     .addTo(map.value)
-    .bindPopup("Welcome to: Abuja, Nigeria")
+    .bindPopup(createPopupContent("Welcome to: Abuja, Nigeria"), popupConfig.value)
     .openPopup();
   markers.value.push(abj);
 
   // set point of interest marker
   defaultVals.defaultAttractions.forEach((element: any) => {
     const defAt = L.marker(element.coordinates, { icon: redIcon })
-      .bindPopup(element.name)
+      .bindPopup(createPopupContent(element.name), popupConfig.value)
       .addTo(map.value);
     markers.value.push(defAt);
   });
@@ -415,20 +651,30 @@ onMounted(() => {
   document.head.appendChild(style);
   appResourceStore.map.on("zoom", () => {
     calculateNewMarkerLayer();
+    calculatePointOfInterestsMarkerLayer();
   });
 
   // check and add from localStorage
   const LClocations = localStorage.getItem("locations");
   const LCrouteLegs = localStorage.getItem("routeLegs");
   const LCrouteInfos = localStorage.getItem("routeInfo");
+  const LCselectedPoiTypes = localStorage.getItem("selectedPoiTypes");
   const LCfuelPrice = localStorage.getItem("fuelPrice");
   const LCtravelMode = localStorage.getItem("travelMode");
   if (LClocations) locations.value = JSON.parse(LClocations);
   if (LCrouteLegs) appResourceStore.routeLegs = JSON.parse(LCrouteLegs);
+  if (LCselectedPoiTypes) selectedPoiTypes.value = JSON.parse(LCselectedPoiTypes);
   if (LCrouteInfos) routeInfo.value = JSON.parse(LCrouteInfos);
   if (LCfuelPrice) fuelPrice.value = Number(LCfuelPrice);
   if (LCtravelMode) travelMode.value = LCtravelMode;
   updateLocations.value = true;
+});
+
+watch(poisMenu, () => {
+  if (!poisMenu.value)
+    setTimeout(() => {
+      poisFilterInput.value = "";
+    }, 400);
 });
 
 // Watch for changes in locations or travel mode
@@ -442,11 +688,12 @@ watch(
 
 // watch for changes on items to save to localStorage
 watch(
-  [locations, routeLegs, routeInfo, fuelPrice, travelMode],
+  [locations, routeLegs, routeInfo, selectedPoiTypes, fuelPrice, travelMode],
   () => {
     $commitToLocalStorage("locations", JSON.stringify(locations.value));
     $commitToLocalStorage("routeLegs", JSON.stringify(routeLegs.value));
     $commitToLocalStorage("routeInfo", JSON.stringify(routeInfo.value));
+    $commitToLocalStorage("selectedPoiTypes", JSON.stringify(selectedPoiTypes.value));
     $commitToLocalStorage("fuelPrice", fuelPrice.value);
     $commitToLocalStorage("travelMode", travelMode.value);
   },
@@ -454,6 +701,29 @@ watch(
 );
 
 // Methods
+// just moves the map
+const moveMap = (coordinates: Array<number>) => {
+  appResourceStore.map.setView(coordinates, 12); // cordinates and zoom level
+};
+// sets the active interests
+const setActiveInterest = (item: any) => {
+  activeInterest.value = item;
+  moveMap([item.coordinates.lat, item.coordinates.lng]);
+  // timeout to wait fro map dom update
+  setTimeout(() => {
+    const dataIndex = pois.value.findIndex((element: any) => element.id === item.id);
+    // twice because of lag
+    poiMarkers.value[dataIndex].remove();
+    poiMarkers.value[dataIndex].remove();
+    const icon = item.type !== "way" ? goldIcon : blackIcon;
+    const marker = L.marker([item.coordinates.lat, item.coordinates.lng], { icon })
+      .addTo(map.value)
+      .bindPopup(createPopupContent(item), popupConfig.value)
+      .openPopup();
+    poiMarkers.value[dataIndex] = marker;
+  }, 400);
+};
+// get locations index because whomever refactored and took a lot from the draggable package needs help
 const getDynamicLocationsIndex = (id: number) => {
   const loopedData = $deepClone(locations.value);
   const dataIndex = loopedData.findIndex((element: Locations) => element.id === id);
@@ -511,6 +781,7 @@ const selectLocation = (index: number, result: SearchResult) => {
 const updateMarkers = () => {
   // Clear existing markers
   calculateNewMarkerLayer();
+  calculatePointOfInterestsMarkerLayer();
   if (routeLayer.value) {
     appResourceStore.map.removeLayer(routeLayer.value);
   }
@@ -525,6 +796,8 @@ const updateMapOnCondition = () => {
   if (canSearch.value) {
     updateRoute();
     updateRoutePoly();
+    getPOIs();
+    backUpSelectedPoiTypes.value = $deepClone(selectedPoiTypes.value);
   }
 };
 // get route distancing amd duration using osrm
@@ -548,7 +821,7 @@ const updateRoute = async () => {
       ...(mapStyle[travelMode.value] || {}),
     };
 
-    routeLine.value = L.geoJSON(data.routes[0].geometry, { style }).addTo(map.value);
+    // routeLine.value = L.geoJSON(data.routes[0].geometry, { style }).addTo(map.value);
     routeInfo.value = {
       distance: data.routes[0].distance,
       duration: data.routes[0].duration,
@@ -575,7 +848,11 @@ const updateRoute = async () => {
 };
 // clear and calculate new markers
 const calculateNewMarkerLayer = () => {
+  // did this twice because noticed a bit of a lag
   markers.value.forEach((marker: any) => marker.remove());
+  markers.value.forEach((marker: any) => marker.remove());
+  markers.value.forEach((marker: any) => marker.closePopup());
+  markers.value.forEach((marker: any) => marker.closePopup());
   markers.value = [];
   //  Add new markers
   locations.value.forEach((location, index) => {
@@ -586,17 +863,242 @@ const calculateNewMarkerLayer = () => {
         ? greenIcon
         : redIcon;
       const marker = L.marker(location.coordinates, { icon })
-        .bindPopup(location.selectedRoute.display_name)
+        .bindPopup(
+          createPopupContent(location.selectedRoute.display_name),
+          popupConfig.value
+        )
         .addTo(map.value);
       markers.value.push(marker);
     }
   });
 };
-
+// clear and calculate new poi markers
 const calculatePointOfInterestsMarkerLayer = () => {
-  poiMarkers.value.forEach((marker) => appResourceStore.map.removeLayer(marker));
+  poisLoader.value = true;
+  // did this twice because noticed a bit of a lag
+  poiMarkers.value.forEach((marker) => marker.remove());
+  poiMarkers.value.forEach((marker) => marker.remove());
+  poiMarkers.value.forEach((marker) => marker.closePopup());
+  poiMarkers.value.forEach((marker) => marker.closePopup());
   poiMarkers.value = [];
-  pois.value = [];
+  if (!pois.value || !selectedPoiTypes.value?.length) return;
+  pois.value.forEach((poi: any) => {
+    const icon = poi.type !== "way" ? goldIcon : blackIcon;
+    const marker = L.marker([poi.coordinates.lat, poi.coordinates.lng], { icon })
+      .addTo(map.value)
+      .bindPopup(createPopupContent(poi), popupConfig.value);
+    poiMarkers.value.push(marker);
+  });
+  poisLoader.value = false;
+};
+const getPOIs = async () => {
+  if (!selectedPoiTypes.value?.length) return calculatePointOfInterestsMarkerLayer();
+
+  // Calculate bounding box based on route
+  const lats = locations.value.map((d) => d.coordinates[0]);
+  const lngs = locations.value.map((d) => d.coordinates[1]);
+  const minLat = Math.min(...lats);
+  const maxLat = Math.max(...lats);
+  const minLng = Math.min(...lngs);
+  const maxLng = Math.max(...lngs);
+
+  // Build Overpass API query
+  const selectedTypes = new Set(selectedPoiTypes.value);
+  const query = `
+    [out:json][timeout:25];
+    (
+      ${selectedPoiTypes.value
+        .map((tag: string) => {
+          let nodeTag = "amenity";
+          if (defaultVals.amenity.includes(tag)) nodeTag = "amenity";
+          else if (defaultVals.tourism.includes(tag)) nodeTag = "tourism";
+          else if (defaultVals.leisure.includes(tag)) nodeTag = "leisure";
+          else if (defaultVals.shop.includes(tag)) nodeTag = "shop";
+          else if (defaultVals.historic.includes(tag)) nodeTag = "historic";
+          return `node["${nodeTag}"="${tag}"](${minLat},${minLng},${maxLat},${maxLng});
+                way["${nodeTag}"="${tag}"](${minLat},${minLng},${maxLat},${maxLng});`;
+        })
+        .join("\n")}
+    );
+    out body;
+    >;
+    out skel qt;
+  `;
+
+  try {
+    poisLoader.value = true;
+    // Query Overpass API
+    const response = await fetch("https://overpass-api.de/api/interpreter", {
+      method: "POST",
+      body: query,
+    });
+    const data = await response.json();
+    const nodeMap: any = {};
+    data.elements.forEach((element: any) => {
+      if (element.type === "node") {
+        nodeMap[element.id] = { lat: element.lat, lng: element.lon };
+      }
+    });
+
+    pois.value = [];
+    activeInterest.value = {};
+    pois.value = data.elements
+      .map((element: any) => processOsmElement(element, nodeMap))
+      .filter((poi: any) => poi && poi?.name !== "Unnamed Location");
+    if (pois.value.length > 174) pois.value = pois.value.slice(0, 174);
+    // Add POI markers
+    calculatePointOfInterestsMarkerLayer();
+  } catch (error: any) {
+    poisLoader.value = false;
+    $globalEmit("error", { prop: error, header: "Points of interest error" });
+  }
+};
+// remember to put me as a helper function
+const processOsmElement = (element: any, nodeMap: any = {}) => {
+  try {
+    // Handle different OSM element types
+    let coordinates = null;
+
+    if (element.type === "node") {
+      // Direct coordinates for nodes
+      coordinates = {
+        lat: element.lat,
+        lng: element.lon,
+      };
+    } else if (element.type === "way") {
+      // For ways, calculate the center point of all nodes
+      const nodes = element.nodes
+        .map((nodeId: any) => nodeMap[nodeId])
+        .filter((node: any) => node); // Remove any undefined nodes
+
+      if (nodes.length > 0) {
+        const latSum = nodes.reduce((sum: any, node: any) => sum + node.lat, 0);
+        const lngSum = nodes.reduce((sum: any, node: any) => sum + node.lng, 0);
+
+        coordinates = {
+          lat: latSum / nodes.length,
+          lng: lngSum / nodes.length,
+        };
+      }
+    }
+
+    // If coordinates no dey, skip am
+    if (!coordinates) return null;
+
+    // Process tags
+    const tags = element.tags || {};
+
+    // Build formatted address
+    const addressParts = [];
+    if (tags["addr:housenumber"]) addressParts.push(tags["addr:housenumber"]);
+    if (tags["addr:street"]) addressParts.push(tags["addr:street"]);
+    if (tags["addr:city"]) addressParts.push(tags["addr:city"]);
+    if (tags["addr:postcode"]) addressParts.push(tags["addr:postcode"]);
+
+    // Process cuisine types: really difficult cause the data is not structured
+    const cuisineTypes = tags.cuisine
+      ? tags.cuisine
+          .split(";")
+          .map((c: any) => c.replace("_", " "))
+          .join(", ")
+      : null;
+
+    // Process dietary options
+    const dietaryOptions = Object.entries(tags)
+      .filter(([key, value]) => key.startsWith("diet:") && value === "yes")
+      .map(([key]) => key.replace("diet:", "").replace("_", " "));
+
+    // Build opening hours display
+    const openingHours = tags.opening_hours
+      ? tags.opening_hours.split(";").join("<br>")
+      : null;
+
+    // Compile features
+    const features = [];
+    if (tags.outdoor_seating === "yes") features.push("Outdoor Seating");
+    if (tags.delivery === "yes") features.push("Delivery");
+    if (tags.takeaway === "yes") features.push("Takeaway");
+    if (tags.reservation === "yes") features.push("Reservations");
+    if (tags.internet_access) features.push("WiFi");
+
+    return {
+      id: element.id,
+      type: element.type,
+      coordinates,
+      name: tags.name || "Unnamed Location",
+      amenity: tags.amenity,
+      address: addressParts.join(", "),
+      phone: tags.phone,
+      email: tags.email,
+      cuisineTypes,
+      dietaryOptions,
+      openingHours,
+      features,
+      originalTags: tags, // Keep original tags in case
+    };
+  } catch (error) {
+    return null;
+  }
+};
+const createPopupContent = (poi: any) => {
+  const sections = [];
+  if ($getType(poi) === "string") return `<p class="text-sm font-bold">${poi}</p>`;
+
+  // Name and type
+  sections.push(`<p class="text-lg font-bold">${poi.name}</p>`);
+  if (poi.amenity) {
+    sections.push(`<p class="text-sm text-gray-600">${poi.amenity}</p>`);
+  }
+
+  // Address and contact
+  if (poi.address) {
+    sections.push(`<p class="mt-2 text-sm">${poi.address}</p>`);
+  }
+  if (poi.phone || poi.email) {
+    const contacts = [];
+    if (poi.phone) contacts.push(`📞 <a href="tel:${poi.phone}">${poi.phone}</a>`);
+    if (poi.email) contacts.push(`📧 <a href="mailto:${poi.email}">${poi.email}</a>`);
+    sections.push(`<p class="mt-2 text-sm ">${contacts.join("<br>")}</p>`);
+  }
+
+  // Cuisine types
+  if (poi.cuisineTypes) {
+    sections.push(`
+      <div class="mt-2 text-sm ">
+        <strong>Cuisine:</strong> ${poi.cuisineTypes}
+      </div>
+    `);
+  }
+
+  // Dietary options
+  if (poi.dietaryOptions?.length > 0) {
+    sections.push(`
+      <div class="mt-2 text-sm ">
+        <strong>Dietary Options:</strong> ${poi.dietaryOptions.join(", ")}
+      </div>
+    `);
+  }
+
+  // Opening hours
+  if (poi.openingHours) {
+    sections.push(`
+      <div class="mt-2 text-sm ">
+        <strong>Opening Hours:</strong><br>
+        ${poi.openingHours}
+      </div>
+    `);
+  }
+
+  // Features
+  if (poi.features?.length > 0) {
+    sections.push(`
+      <div class="mt-2 text-sm ">
+        <strong>Features:</strong> ${poi.features.join(" • ")}
+      </div>
+    `);
+  }
+
+  return sections.join("\n");
 };
 // just adds a new locations object
 const addLocation = () => {
@@ -651,6 +1153,7 @@ const formatDuration = (seconds: number) => {
 // get multiple locations path using OSRM, wanted to implement others but time
 const getGeoJSon = async () => {
   calculateNewMarkerLayer();
+  calculatePointOfInterestsMarkerLayer();
   const cord = locations.value.map((element: Locations, index: number) => {
     return [...element.coordinates];
   });
@@ -722,18 +1225,10 @@ const updateRoutePoly = async () => {
     // Get the route from OSRM
     const routeData = await getGeoJSon();
     const decodedRoute = decodePolyline(routeData.routes[0].geometry);
-
     // Create new polyline with the route and based on travel mode
-    routeLayer.value = L.polyline(decodedRoute, {
-      color:
-        travelMode.value === "driving"
-          ? "blue"
-          : travelMode.value === "cycling"
-          ? "#291f57"
-          : "#3a71b4",
-      weight: 3,
-      opacity: 0.7,
-    }).addTo(map.value);
+    routeLayer.value = L.polyline(decodedRoute, mapStyle[travelMode.value]).addTo(
+      map.value
+    );
 
     // Fit bounds to show the entire route
     appResourceStore.map.fitBounds(routeLayer.value.getBounds(), {

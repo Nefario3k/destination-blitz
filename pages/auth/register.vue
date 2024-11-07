@@ -1,5 +1,5 @@
 <template>
-  <section class="noTransition page_main_section">
+  <section class="noTransition page_main_section preventDefaultTransition">
     <section
       style="grid-gap: 0"
       class="auth__section align_auto min-h-screen relative overflow-hidden"
@@ -28,9 +28,12 @@
       </div>
       <section
         style="grid-gap: 0 !important"
-        class="transrightBasic justify_auto min-h-[inherit]"
+        class="justify_auto min-h-[inherit] relative isolate"
       >
-        <section class="auth__body px-[16px] max-w-[50.1rem] mx-auto flex_center w-full">
+        <AuthIcons />
+        <section
+          class="transrightBasic auth__body px-[16px] max-w-[50.1rem] mx-auto flex_center w-full"
+        >
           <form autocomplete="new-password" class="py-[24px]" @submit.prevent="register">
             <VRow>
               <VCol :cols="12" class="mb-p-[12px]">
@@ -125,7 +128,6 @@
                   :text-style="{
                     fontSize: 'var(--text_sm)',
                   }"
-                  @click="startInterval()"
                 />
               </VCol>
               <!-- reg -->

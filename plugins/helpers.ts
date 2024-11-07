@@ -137,6 +137,11 @@ export default defineNuxtPlugin((nuxtApp) => {
           return typeStr;
         }
       },
+      compareArrayStrings: (arr1: Array<string>, arr2: Array<string>) => {
+        const arr1D = nuxtApp.$deepClone(arr1)
+        const arr2D = nuxtApp.$deepClone(arr2)
+        return arr1D.sort().join(',') === arr2D.sort().join(',');
+      },
       getUser: () => {
         // if (data.value?.data) {
         //   return { ...data.value?.data };
