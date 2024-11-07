@@ -9,7 +9,6 @@
 <script setup lang="ts">
 const { showSuccess, catchError, showInfo } = toast();
 const { on } = useEventBus();
-const appResourceStore = useAppResourceStore();
 interface EventData {
   prop: any;
   header: string;

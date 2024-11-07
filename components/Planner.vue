@@ -2,10 +2,12 @@
   <section class="page_main_section preventDefaultTransition">
     <section style="grid-gap: 0" class="align_auto min-h-screen">
       <!-- Locations Control -->
-      <Controls
-        :style="{ zIndex }"
-        class="overlflow-hidden h-screen max-w-[350px] overflow-auto responsiveControl"
-      />
+      <ClientOnly>
+        <Controls
+          :style="{ zIndex }"
+          class="overlflow-hidden h-screen max-w-[350px] overflow-auto responsiveControl"
+        />
+      </ClientOnly>
       <BaseButton
         class="linear__background fixed top-[12px] right-[12px] z-[1000] visible_sm"
         style="padding: 0 !important"
@@ -51,7 +53,6 @@
   </section>
 </template>
 <script setup lang="ts">
-import { computed } from "vue";
 // state management
 const appResourceStore = useAppResourceStore();
 const zIndex = computed(() => appResourceStore.zIndex);

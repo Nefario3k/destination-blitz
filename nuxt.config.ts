@@ -4,7 +4,6 @@ import { defineNuxtConfig } from "nuxt/config";
 
 export default defineNuxtConfig({
   devtools: { enabled: false },
-
   app: {
     // pageTransition: { name: "page", mode: "out-in" },
     head: {
@@ -87,13 +86,11 @@ export default defineNuxtConfig({
       ],
     },
   },
-
   // sourcemap: false,
   // components: true,
   imports: {
     // dirs: ["~/composables", "~/composables/modules"],
   },
-
   modules: [
     (_options, nuxt) => {
       nuxt.hooks.hook("vite:extendConfig", (config) => {
@@ -104,14 +101,13 @@ export default defineNuxtConfig({
     //...
     // "vue-currency-input",
     // "@nuxtjs/sitemap",
+    // "@sidebase/nuxt-auth",
     "@pinia/nuxt",
     "@nuxtjs/tailwindcss",
   ],
-
   pinia: {
     storesDirs: ["./stores/**", "./custom-folder/stores/**"],
   },
-
   vite: {
     esbuild: {
       // Ensure target is a string
@@ -129,11 +125,9 @@ export default defineNuxtConfig({
       },
     },
   },
-
   build: {
     transpile: ["vuetify", "lord-icon"],
   },
-
   compilerOptions: {
     isCustomElement: (tag: any) => tag.startsWith("lord-icon"),
   },
@@ -145,6 +139,41 @@ export default defineNuxtConfig({
     "~/assets/styles/transitions.scss",
     "~/assets/styles/responsive.scss",
   ],
+  // auth: {
+  //   baseURL: process.env.API_BASE_URL,
+  //   globalAppMiddleware: true,
+  //   provider: {
+  //     type: "local",
+  //     endpoints: {
+  //       signIn: { path: "login", method: "post" },
+  //       signOut: { path: "logout", method: "post" },
+  //       signUp: { path: "register", method: "post" },
+  //       getSession: { path: "account/profile", method: "get" },
+  //       // getSession: false,
+  //     },
+  //     token: {
+  //       signInResponseTokenPointer: "/auth_token",
+  //       // type: 'Bearer',
+  //       maxAgeInSeconds: 2592000,
+  //       autoLogout: false,
+  //     },
+  //     pages: {
+  //       login: "/",
+  //     },
+  //   },
+  // },
+
+  // sitemap: {
+  //   xsl: false,
+  //   hostname: process.env.LANDING_PAGE_URL,
+  //   cacheTime: 600000,
+  //   gzip: true,
+  //   i18n: true,
+  // },
+
+  // site: {
+  //   url: process.env.LANDING_PAGE_URL,
+  // },
 
   runtimeConfig: {
     public: {
@@ -154,6 +183,4 @@ export default defineNuxtConfig({
       },
     },
   },
-
-  compatibilityDate: "2024-11-04",
 });
