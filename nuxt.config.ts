@@ -1,5 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import vuetify, { transformAssetUrls } from "vite-plugin-vuetify";
+import { defineNuxtConfig } from "nuxt/config";
 
 export default defineNuxtConfig({
   devtools: { enabled: false },
@@ -30,7 +31,7 @@ export default defineNuxtConfig({
         {
           hid: "og:image",
           property: "og:image",
-          content: "/logo.png",
+          content: "",
         },
 
         // twitter card
@@ -58,7 +59,7 @@ export default defineNuxtConfig({
         {
           hid: "twitter:image",
           name: "twitter:image",
-          content: "/full-logo.png",
+          content: "",
         },
 
         { hid: "author", name: "author", content: "dbz" },
@@ -103,7 +104,6 @@ export default defineNuxtConfig({
     //...
     // "vue-currency-input",
     // "@nuxtjs/sitemap",
-    // "@sidebase/nuxt-auth",
     "@pinia/nuxt",
     "@nuxtjs/tailwindcss",
   ],

@@ -14,7 +14,6 @@
   "dependencies": {
     "@mdi/font": "^7.4.47",
     "@pinia/nuxt": "^0.5.1",
-    "@sidebase/nuxt-auth": "^0.6.7",
     "axios": "^1.6.8",
     "leaflet": "^1.9.4",
     "leaflet-routing-machine": "^3.2.12",
