@@ -623,9 +623,9 @@ onMounted(() => {
   }).addTo(map.value);
 
   // adds abuja marker
-  let abj = L.marker(abujaCoordinates)
-    .addTo(map.value)
+  let abj = L.marker(abujaCoordinates, { icon: blackIcon })
     .bindPopup(createPopupContent("Welcome to: Abuja, Nigeria"), popupConfig.value)
+    .addTo(map.value)
     .openPopup();
   markers.value.push(abj);
 
