@@ -791,6 +791,7 @@ const moveMap = (coordinates: Array<number>, zoom: number = 18) => {
 const setActiveInterest = (item: any) => {
   activeInterest.value = item;
   moveMap([item.coordinates.lat, item.coordinates.lng]);
+  appResourceStore.zIndex = 0;
   // timeout to wait fro map dom update
   setTimeout(() => {
     const dataIndex = pois.value.findIndex((element: any) => element.id === item.id);
