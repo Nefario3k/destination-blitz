@@ -21,7 +21,7 @@ export default defineNuxtConfig({
           property: "og:title",
           content: "Destination Blitz",
         },
-        { hid: "og:url", property: "og:url", content: "/" },
+        { hid: "og:url", property: "og:url", content: "https://thenerfsenpai.netlify.app/" },
         {
           hid: "og:description",
           property: "og:description",
@@ -30,7 +30,7 @@ export default defineNuxtConfig({
         {
           hid: "og:image",
           property: "og:image",
-          content: "",
+          content: "https://thenerfsenpai.netlify.app/assets/img/live-app.png",
         },
 
         // twitter card
@@ -39,7 +39,7 @@ export default defineNuxtConfig({
           name: "twitter:card",
           content: "summary_large_image",
         },
-        { hid: "twitter:site", name: "twitter:site", content: "@dbz" },
+        { hid: "twitter:site", name: "twitter:site", content: "@DaviesOkpeta" },
         {
           hid: "twitter:title",
           name: "twitter:title",
@@ -48,7 +48,7 @@ export default defineNuxtConfig({
         {
           hid: "twitter:url",
           name: "twitter:url",
-          content: "/",
+          content: "https://thenerfsenpai.netlify.app/",
         },
         {
           hid: "twitter:description",
@@ -58,10 +58,10 @@ export default defineNuxtConfig({
         {
           hid: "twitter:image",
           name: "twitter:image",
-          content: "",
+          content: "https://thenerfsenpai.netlify.app/assets/img/live-app.png",
         },
 
-        { hid: "author", name: "author", content: "dbz" },
+        { hid: "author", name: "author", content: "@DaviesOkpeta" },
         {
           hid: "description",
           name: "description",
@@ -70,6 +70,42 @@ export default defineNuxtConfig({
         { name: "format-detection", content: "telephone=no" },
       ],
       link: [
+
+        { rel: "manifest", href: "/site.webmanifest" },
+        {
+          hid: "icon",
+          rel: "icon",
+          type: "image/png",
+          href: "https://thenerfsenpai.netlify.app/favicon.png",
+        },
+        {
+          rel: "icon",
+          type: "image/x-icon",
+          href: "https://thenerfsenpai.netlify.app/favicon.ico",
+        },
+        {
+          rel: "apple-touch-icon",
+          sizes: "180x180",
+          href: "https://thenerfsenpai.netlify.app/apple-touch-icon.png",
+        },
+        {
+          rel: "icon",
+          type: "image/png",
+          sizes: "32x32",
+          href: "https://thenerfsenpai.netlify.app/favicon-32x32.png",
+        },
+        {
+          rel: "icon",
+          type: "image/png",
+          sizes: "16x16",
+          href: "https://thenerfsenpai.netlify.app/favicon-16x16.png",
+        },
+        {
+          hid: "shortcut-icon",
+          rel: "shortcut icon",
+          type: "image/png",
+          href: "https://thenerfsenpai.netlify.app/favicon.png",
+        },
         {
           rel: "stylesheet",
           type: "text/css",
