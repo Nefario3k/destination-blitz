@@ -71,7 +71,7 @@ export default defineNuxtConfig({
       ],
       link: [
 
-        { rel: "manifest", href: "/site.webmanifest" },
+        { rel: "manifest", href: "https://thenerfsenpai.netlify.app/site.webmanifest" },
         {
           hid: "icon",
           rel: "icon",

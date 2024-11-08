@@ -749,13 +749,15 @@ watch(
 );
 
 // Methods
+// handles the map clicks
 const handleMapClick = async (e: any) => {
   const { lat, lng } = e.latlng;
   mapSelectedLocation.value = { lat: lat.toFixed(6), lng: lng.toFixed(6) };
   await fetchLocationDetails(lat, lng);
-  moveMap([mapSelectedDetails.value.lat, mapSelectedDetails.value.lon]);
+  moveMap([mapSelectedDetails.value.lat, mapSelectedDetails.value.lon], 12);
   calculateMapSelectionMarkerLayer();
 };
+// fetches locations from map clicks
 const fetchLocationDetails = async (lat: number, lng: number) => {
   appResourceStore.isMapLoading = true;
   mapSelectedDetails.value = {};
@@ -811,7 +813,14 @@ const getDynamicLocationsIndex = (id: number) => {
   const dataIndex = loopedData.findIndex((element: Locations) => element.id === id);
   return Math.abs(dataIndex);
 };
-// search for flight per input
+// notification debouncer to prevent annoying messages for when typing really slow af
+const debounceNotification = debounce((type: string, prop: any, header?: any) => {
+  $globalEmit(type, {
+    prop,
+    header,
+  });
+}, 1000);
+// search for flight per input debounced
 const debounceSearch = debounce(async (index: number) => {
   const location = locations.value[index];
   const searchInputData = $deepClone(locations.value[index].search);
@@ -832,11 +841,13 @@ const debounceSearch = debounce(async (index: number) => {
     );
 
     // if (!response?.length) throw new Error("Search failed");
-    if (!response?.length)
-      return $globalEmit("info", {
-        prop: `Unable to find places that match your search: <strong>${searchInputData}</strong>`,
-        header: "Issue Searching",
-      });
+    if (!response?.length) {
+      return debounceNotification(
+        "info",
+        `Unable to find places that match your search: <strong>${searchInputData}</strong>`,
+        "Issue Searching"
+      );
+    }
 
     location.searchResults = response;
     location.error = null;
@@ -849,7 +860,7 @@ const debounceSearch = debounce(async (index: number) => {
   }
 }, 300);
 
-// select a searched flight per locations
+// select a searched location
 const selectLocation = (index: number, result: SearchResult) => {
   const location = locations.value[index];
   if (location.search === result.display_name) return (location.menu = false);
@@ -859,7 +870,7 @@ const selectLocation = (index: number, result: SearchResult) => {
   location.menu = false;
   updateMarkers();
 };
-
+// select a searched location from map
 const selectDestinationFromMap = (index: number, result: SearchResult) => {
   selectLocation(index, result);
   mapSelectedDetails.value = {};
@@ -934,6 +945,7 @@ const updateRoute = async () => {
   } finally {
   }
 };
+// remove markers
 const removeMarkers = async (type: string = "markers") => {
   const mapMarks =
     type === "markers"
@@ -1001,6 +1013,7 @@ const calculateMapSelectionMarkerLayer = async () => {
     }, 400);
   }
 };
+// search points of interest
 const getPOIs = async () => {
   if (!selectedPoiTypes.value?.length) return calculatePointOfInterestsMarkerLayer();
 
@@ -1155,6 +1168,7 @@ const processOsmElement = (element: any, nodeMap: any = {}) => {
     return null;
   }
 };
+// process popup tooltip
 const createPopupContent = (poi: any) => {
   const sections = [];
   if ($getType(poi) === "string") return `<p class="text-sm font-bold">${poi}</p>`;
