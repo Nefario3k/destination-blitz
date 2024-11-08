@@ -1,10 +1,19 @@
-# Nuxt 3 Minimal Starter
+# Destination Blitz Minimal Starter
+
+## Description
+
+This project is built on vue.js (Nuxt3) and uses Leaflet and Open Street Map to display and manipulate map data as well as OSRM for GeoJson, Polyline draw and route calculations.
 
 Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
 
+## Requirement
+
+- Node 20+
+- Npm
+
 ## Setup
 
-Make sure to install the dependencies:
+Make sure to install the dependencies first:
 
 ```bash
 # npm
@@ -72,4 +81,34 @@ yarn preview
 bun run preview
 ```
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+## Visuals
+
+![Index](./public/screenshort1.png)
+
+![Login](./public/screenshort2.png)
+
+![Register](./public/screenshort3.png)
+
+## Structure
+
+```
+Root/
+├── assets/
+├── components/
+├── composables/
+├── layouts/
+├── libs/
+├── pages/
+├── plugins/
+├── public/
+│   ├── images/
+│   ├── svgs/
+│   └── screenshort1.png
+├── server/
+├── stores/
+├── types/
+├── utils/
+└── README.md
+```
+
+Visit the [deployment](https://destination-blitz.netlify.app/) for a live preview.
