@@ -657,6 +657,7 @@ const violetIcon = new L.Icon(defaultVals.defaultIcons[5]);
 
 // Initialize map on client only loaded to avoid windows error and document not found error
 onMounted(() => {
+  appResourceStore.zIndex = 0;
   // sets default map view to be on abuja
   const zoomLevel = 12;
   const abujaCoordinates: Array<number> = [9.0765, 7.3986];
