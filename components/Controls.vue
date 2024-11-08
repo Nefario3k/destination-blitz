@@ -94,6 +94,50 @@
           </div>
         </Transition>
       </div>
+      <Transition name="slide-fade">
+        <div
+          v-if="!appResourceStore.isMapLoading && mapSelectedDetails?.display_name"
+          class="p-[12px] border-[1px] border-bc rounded-[8px] gap-[10px] relative overflow-hidden space-y-3"
+        >
+          <label class="block text-sm font-medium max-w-max">From Map Selection</label>
+          <div class="">
+            <div class="font-medium text-dark-7">
+              {{
+                mapSelectedDetails.name
+                  ? mapSelectedDetails.name
+                  : mapSelectedDetails.display_name
+              }}
+            </div>
+            <div v-if="mapSelectedDetails.name" class="font-medium text-xs elipsis-2">
+              {{ mapSelectedDetails.display_name }}
+            </div>
+            <div class="text-[10px] capital text-dark-11 font-medium">
+              {{ formatPlaceDetails(mapSelectedDetails) }}
+            </div>
+          </div>
+          <label class="block text-sm font-medium max-w-max">Select Destinations</label>
+          <div class="flex_center gap-[12px]">
+            <BaseButton
+              v-for="(items, index) in locations"
+              :key="index + 1932"
+              style="padding: 0 !important"
+              :disabled="isMapLoading"
+              :elevation="1"
+              class=""
+              height="3rem"
+              width="3rem"
+              min-height="3rem"
+              min-width="3rem"
+              color="var(--text_dark7)"
+              :text="index + 1"
+              :text-style="{
+                fontSize: 'var(--text_xs)',
+              }"
+              @click="selectDestinationFromMap(index, mapSelectedDetails)"
+            />
+          </div>
+        </div>
+      </Transition>
       <Draggable v-if="updateLocations" v-model="locations" class="space-y-4">
         <template #item="{ item: location }">
           <div class="space-y-2">
@@ -518,6 +562,11 @@ const appResourceStore = useAppResourceStore();
 // map markers
 const markers = ref<Array<any>>([]);
 const poiMarkers = ref<Array<any>>([]);
+const selectionMarkers = ref<Array<any>>([]);
+
+// map selection
+const mapSelectedDetails = ref<SearchResult | {}>({});
+const mapSelectedLocation = ref<any>(null);
 
 // marker popup structure styles
 const popupConfig = ref<any>({
@@ -604,6 +653,7 @@ const redIcon = new L.Icon(defaultVals.defaultIcons[1]);
 const greenIcon = new L.Icon(defaultVals.defaultIcons[2]);
 const goldIcon = new L.Icon(defaultVals.defaultIcons[3]);
 const blackIcon = new L.Icon(defaultVals.defaultIcons[4]);
+const violetIcon = new L.Icon(defaultVals.defaultIcons[5]);
 
 // Initialize map on client only loaded to avoid windows error and document not found error
 onMounted(() => {
@@ -612,7 +662,7 @@ onMounted(() => {
   const abujaCoordinates: Array<number> = [9.0765, 7.3986];
   if (!map.value) {
     appResourceStore.map = L.map("map");
-    moveMap(abujaCoordinates);
+    moveMap(abujaCoordinates, 12);
   }
 
   // Add custom styled tile layer
@@ -648,7 +698,9 @@ onMounted(() => {
   appResourceStore.map.on("zoom", () => {
     calculateNewMarkerLayer();
     calculatePointOfInterestsMarkerLayer();
+    calculateMapSelectionMarkerLayer();
   });
+  appResourceStore.map.on("click", handleMapClick);
 
   // check and add from localStorage
   const LClocations = localStorage.getItem("locations");
@@ -697,9 +749,41 @@ watch(
 );
 
 // Methods
+const handleMapClick = async (e: any) => {
+  const { lat, lng } = e.latlng;
+  mapSelectedLocation.value = { lat: lat.toFixed(6), lng: lng.toFixed(6) };
+  await fetchLocationDetails(lat, lng);
+  moveMap([mapSelectedDetails.value.lat, mapSelectedDetails.value.lon]);
+  calculateMapSelectionMarkerLayer();
+};
+const fetchLocationDetails = async (lat: number, lng: number) => {
+  appResourceStore.isMapLoading = true;
+  mapSelectedDetails.value = {};
+
+  try {
+    // Using opst Nominatim API for reverse geocoding
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?` +
+        `format=json&lat=${lat}&lon=${lng}&addressdetails=1`,
+      {
+        headers: {
+          "Accept-Language": "en",
+          "User-Agent": "Nuxt Location Picker",
+        },
+      }
+    );
+
+    const data = await response.json();
+    mapSelectedDetails.value = data;
+  } catch (error) {
+    $globalEmit("error", { prop: error, header: "Failed to fetch location details" });
+  } finally {
+    appResourceStore.isMapLoading = false;
+  }
+};
 // just moves the map
-const moveMap = (coordinates: Array<number>) => {
-  appResourceStore.map.setView(coordinates, 18); // cordinates and zoom level
+const moveMap = (coordinates: Array<number>, zoom: number = 18) => {
+  appResourceStore.map.setView(coordinates, zoom); // cordinates and zoom level
 };
 // sets the active interests
 const setActiveInterest = (item: any) => {
@@ -775,6 +859,12 @@ const selectLocation = (index: number, result: SearchResult) => {
   location.menu = false;
   updateMarkers();
 };
+
+const selectDestinationFromMap = (index: number, result: SearchResult) => {
+  selectLocation(index, result);
+  mapSelectedDetails.value = {};
+  calculateMapSelectionMarkerLayer();
+};
 // set the markers and update on the leaflet
 const updateMarkers = () => {
   // Clear existing markers
@@ -845,13 +935,17 @@ const updateRoute = async () => {
   }
 };
 const removeMarkers = async (type: string = "markers") => {
-  const mapMarks = type === "markers" ? markers.value : poiMarkers.value;
+  const mapMarks =
+    type === "markers"
+      ? markers.value
+      : type === "poiMarkers"
+      ? poiMarkers.value
+      : selectionMarkers.value;
   await mapMarks.forEach((marker: any) => marker.closePopup());
   await mapMarks.forEach((marker: any) => marker.remove());
 };
 // clear and calculate new markers
 const calculateNewMarkerLayer = async () => {
-  // did this twice because noticed a bit of a lag
   await removeMarkers();
   markers.value = [];
   //  Add new markers
@@ -875,7 +969,6 @@ const calculateNewMarkerLayer = async () => {
 // clear and calculate new poi markers
 const calculatePointOfInterestsMarkerLayer = async () => {
   poisLoader.value = true;
-  // did this twice because noticed a bit of a lag
   await removeMarkers("poiMarkers");
   poiMarkers.value = [];
   if (!pois.value || !selectedPoiTypes.value?.length) return;
@@ -887,6 +980,26 @@ const calculatePointOfInterestsMarkerLayer = async () => {
     poiMarkers.value.push(marker);
   });
   poisLoader.value = false;
+};
+// clear and calculate new map selected markers
+const calculateMapSelectionMarkerLayer = async () => {
+  await removeMarkers("selectionMarkers");
+  if (Object.keys(mapSelectedDetails.value).length) {
+    const icon = violetIcon;
+    setTimeout(() => {
+      const marker = L.marker(
+        [mapSelectedDetails.value.lat, mapSelectedDetails.value.lon],
+        { icon }
+      )
+        .bindPopup(
+          createPopupContent(mapSelectedDetails.value.display_name),
+          popupConfig.value
+        )
+        .addTo(map.value)
+        .openPopup();
+      selectionMarkers.value.push(marker);
+    }, 400);
+  }
 };
 const getPOIs = async () => {
   if (!selectedPoiTypes.value?.length) return calculatePointOfInterestsMarkerLayer();
@@ -938,10 +1051,15 @@ const getPOIs = async () => {
         nodeMap[element.id] = { lat: element.lat, lng: element.lon };
       }
     });
-
+    const display_names = locations.value.map((element: Locations) => {
+      return element.selectedRoute.name;
+    });
     pois.value = data.elements
       .map((element: any) => processOsmElement(element, nodeMap))
-      .filter((poi: any) => poi && poi?.name !== "Unnamed Location");
+      .filter(
+        (poi: any) =>
+          poi && poi?.name !== "Unnamed Location" && !display_names.includes(poi.name)
+      );
     if (pois.value.length > 174) pois.value = pois.value.slice(0, 174);
     // Add POI markers
     calculatePointOfInterestsMarkerLayer();
